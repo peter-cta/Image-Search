@@ -47,20 +47,19 @@ class ColorDescriptor:
         #print("hist.flatten : {} , length : {}".format(hist,len(hist)))
         return hist
 
-path_to_csv = 'data.csv'
-path_to_dataset = 'dataset';
-cd = ColorDescriptor((8, 12, 3))
-# open the output index file for writing
-output = open(path_to_csv, "w")
-for imagePath in glob.glob(path_to_dataset + "/*.jpg"):
-    imageID = imagePath[imagePath.rfind("/") + 1:]
-    image = cv2.imread(imagePath)
-    features = cd.describe(image)
-    # write the features to file
-    features = [str(f) for f in features]
-    output.write("%s,%s\n" % (imageID, ",".join(features)))
-# close the index file
-output.close()
+def features_extract(path_to_csv,path_to_dataset):
+    cd = ColorDescriptor((8, 12, 3))
+    # open the output index file for writing
+    output = open(path_to_csv, "w")
+    for imagePath in glob.glob(path_to_dataset + "/*.jpg"):
+        imageID = imagePath[imagePath.rfind("/") + 1:]
+        image = cv2.imread(imagePath)
+        features = cd.describe(image)
+        # write the features to file
+        features = [str(f) for f in features]
+        output.write("%s,%s\n" % (imageID, ",".join(features)))
+    # close the index file
+    output.close()
 
 
 class Searcher:
@@ -95,19 +94,19 @@ class Searcher:
         # return the chi-squared distance
         return d
 
-cd = ColorDescriptor((8, 12, 3))
-query = cv2.imread('dataset/x (99).jpg')
-features = cd.describe(query)
-#print("featues input : ",features)
-# perform the search
-searcher = Searcher(path_to_csv)
-results = searcher.search(features)
-# display the query
-cv2.imshow("Query", query)
-# loop over the results
-path_to_result = 'dataset'
-for (score, resultID) in results:
-	# load the result image and display it
-	result = cv2.imread(resultID)
-	cv2.imshow('Result', result)
-	cv2.waitKey(0)
+
+def search(img,path_to_csv):
+    cd = ColorDescriptor((8, 12, 3))
+    query = cv2.imread(img)
+    features = cd.describe(query)
+    #print("featues input : ",features)
+    # perform the search
+    searcher = Searcher(path_to_csv)
+    results = searcher.search(features)
+    
+    cv2.imshow("Query", query)
+    for (score, resultID) in results:
+        img_result = cv2.imread(resultID)
+        cv2.imshow('Result', img_result)
+        cv2.waitKey(0)   
+    cv2.destroyAllWindows()
